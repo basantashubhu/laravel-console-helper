@@ -1,0 +1,19 @@
+{
+    "name": "basanta/laravel-console-helper",
+    "description": "Utility commands to make day to day laravel development easier",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Basanta\\LaravelConsoleHelper\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "basantashubhu",
+            "email": "basanta@systha.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
