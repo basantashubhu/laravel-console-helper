@@ -14,6 +14,16 @@
             "email": "basanta@systha.com"
         }
     ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Basanta\\LaravelConsoleHelper\\LaravelConsoleHelperServiceProvider"
+            ]
+        }
+    },
     "minimum-stability": "dev",
-    "require": {}
+    "require": {},
+    "config": {
+        "sort-packages": true
+    }
 }
