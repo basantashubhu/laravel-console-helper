@@ -8,6 +8,13 @@ trait PackageHelper
 {
     protected array $composerJson = [];
 
+
+    /**
+     * Load the composer.json file for a given package.
+     *
+     * @param string $package The name of the package.
+     * @return void
+     */
     public function loadComposerJson($package)
     {
         if (isset($this->composerJson[$package])) {
@@ -28,12 +35,27 @@ trait PackageHelper
         $this->resolvePackageNamespace($package);
     }
 
+
+    /**
+     * Resolves the namespace for a given package.
+     *
+     * @param string $package The name of the package.
+     * @return void
+     */
     public function resolvePackageNamespace($package)
     {
         $autoload = Arr::get($this->composerJson[$package], 'autoload.psr-4');
         $this->composerJson[$package]['namespace'] = key($autoload);
     }
 
+
+    /**
+     * Get the full path for the PHP class file.
+     *
+     * @param string $namespace The namespace for the class.
+     * @param string $package The name of the package.
+     * @return string The full path for the PHP class file.
+     */
     public function getClassPathForPackage($namespace, $package)
     {
         $this->loadComposerJson($package);

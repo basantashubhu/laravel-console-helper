@@ -10,7 +10,7 @@ class MakePHPClass extends Command
 {
     use PackageHelper, ArrayVariable;
 
-    protected $signature = 'make:class {name?} {--package=}';
+    protected $signature = 'make:class {name?} {--package=} {--E|extends : Enter the class to extend} {--I|implements : Enter the interfaces to implement}';
 
     protected $description = 'Create a new PHP class';
 
@@ -18,8 +18,8 @@ class MakePHPClass extends Command
     {
         $name = $this->argument('name') ?: $this->ask('Enter the class name');
         $namespace = $this->ask('Enter the namespace for the class', 'App');
-        $extends = $this->ask('Enter the class to extend');
-        $implements = $this->ask('Enter the interfaces to implement');
+        $extends = $this->option('extends') ? $this->ask('Enter the class to extend') : '';
+        $implements = $this->option('implements') ? $this->ask('Enter the interfaces to implement') : '';
 
         $this->addVariable('{{ className }}', $name);
         $this->addVariable('{{ namespace }}', $namespace);
@@ -35,6 +35,14 @@ class MakePHPClass extends Command
         return 0;
     }
 
+
+    /**
+     * Creates a new PHP class file.
+     *
+     * @param string $name The name of the class.
+     * @param string $namespace The namespace for the class.
+     * @return void
+     */
     protected function createClass($name, $namespace)
     {
         $path = $this->getClassPath($name, $namespace);
@@ -50,6 +58,12 @@ class MakePHPClass extends Command
         file_put_contents($path, $this->compileClassStub());
     }
 
+
+    /**
+     * Compiles the class stub by replacing the placeholders with actual values.
+     *
+     * @return string The compiled class stub.
+     */
     protected function compileClassStub()
     {
         $stub = file_get_contents(__DIR__ . '/../stub/php-class.stub');
@@ -61,6 +75,14 @@ class MakePHPClass extends Command
         return $stub;
     }
 
+
+    /**
+     * Get the full path for the PHP class file.
+     *
+     * @param string $name The name of the class.
+     * @param string $namespace The namespace for the class.
+     * @return string The full path for the PHP class file.
+     */
     protected function getClassPath($name, $namespace)
     {
         if($forPackage = $this->option('package')) {
@@ -72,6 +94,13 @@ class MakePHPClass extends Command
         return base_path($path) . '/' . $name . '.php';
     }
 
+
+    /**
+     * Creates a directory if it does not exists.
+     *
+     * @param string $path The path of the directory to create.
+     * @return void
+     */
     protected function makeDirectory($path)
     {
         $directory = dirname($path);
@@ -81,6 +110,13 @@ class MakePHPClass extends Command
         }
     }
 
+
+    /**
+     * Check if a file or directory already exists.
+     *
+     * @param string $path The path to check.
+     * @return bool Returns true if the file or directory exists, otherwise false.
+     */
     protected function alreadyExists($path)
     {
         return file_exists($path);
