@@ -11,6 +11,7 @@ class LaravelConsoleHelperServiceProvider extends ServiceProvider
         $this->commands([
             Commands\MakePHPClass::class,
             Commands\MakeComposerRepository::class,
+            Commands\RouteFind::class,
         ]);
     }
 }
