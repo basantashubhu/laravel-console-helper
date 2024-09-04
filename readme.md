@@ -27,3 +27,9 @@ php artisan make:composer-respository
 ```
 
 Generates a new composer repository for custom packages to be added into composer.json
+
+```bash
+php artisan route:find {uriToFind?}
+```
+
+Find exact implementation of a route by URI. Copy paste the uri from the browser. Use * as wildcard.
