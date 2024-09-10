@@ -10,17 +10,27 @@ class MakePHPClass extends Command
 {
     use PackageHelper, ArrayVariable;
 
-    protected $signature = 'make:class {name?} {--package=} {--E|extends : Enter the class to extend} {--I|implements : Enter the interfaces to implement}';
+    protected $signature = 'make:class {name?} {--packagename=} {--P|package : Class is for package} {--E|extends : Enter the class to extend} {--I|implements : Enter the interfaces to implement} {--T|trait : Treat new file as a trait}';
 
     protected $description = 'Create a new PHP class';
 
     public function handle()
     {
         $name = $this->argument('name') ?: $this->ask('Enter the class name');
-        $namespace = $this->ask('Enter the namespace for the class', 'App');
+        $namespace = $this->ask('Enter the namespace for the class', cache('laravel-console-helper::namespace') ?: 'App');
         $extends = $this->option('extends') ? $this->ask('Enter the class to extend') : '';
         $implements = $this->option('implements') ? $this->ask('Enter the interfaces to implement') : '';
+        $classOrTrait = $this->option('trait') ? 'trait' : 'class';
 
+        if($this->option('package')) {
+            $this->input->setOption('packagename', $this->option('packagename') ?: $this->ask('Enter the package name [username/repo]', 'main'));
+        }
+
+        cache()->remember('laravel-console-helper::namespace', today()->endOfDay(), function() use ($namespace) {
+            return $namespace;
+        });
+
+        $this->addVariable('{{ classOrTrait }}', $classOrTrait);
         $this->addVariable('{{ className }}', $name);
         $this->addVariable('{{ namespace }}', $namespace);
         $this->addVariable('{{ extends }}', $extends ? " extends $extends" : '');
@@ -85,11 +95,7 @@ class MakePHPClass extends Command
      */
     protected function getClassPath($name, $namespace)
     {
-        if($forPackage = $this->option('package')) {
-            $path = $this->getClassPathForPackage($namespace, $forPackage);
-        } else {
-            $path = $this->getClassPathForPackage($namespace, 'main');
-        }
+        $path = $this->getClassPathForPackage($namespace, $this->option('packagename') ?: 'main');
 
         return base_path($path) . '/' . $name . '.php';
     }

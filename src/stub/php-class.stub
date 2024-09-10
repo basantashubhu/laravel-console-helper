@@ -2,7 +2,7 @@
 
 namespace {{ namespace }};
 {{ use }}
-class {{ className }}{{ extends }}{{ implements }}
+{{ classOrTrait }} {{ className }}{{ extends }}{{ implements }}
 {
 
 }
