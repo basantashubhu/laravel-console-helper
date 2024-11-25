@@ -10,14 +10,14 @@ class MakePHPClass extends Command
 {
     use PackageHelper, ArrayVariable;
 
-    protected $signature = 'make:class {name?} {--packagename=} {--P|package : Class is for package} {--E|extends : Enter the class to extend} {--I|implements : Enter the interfaces to implement} {--T|trait : Treat new file as a trait}';
+    protected $signature = 'make:class {name?} {--packagename=} {--P|package : Class is for package} {--E|extends : Enter the class to extend} {--I|implements : Enter the interfaces to implement} {--T|trait : Treat new file as a trait} {--namespace=}';
 
     protected $description = 'Create a new PHP class';
 
     public function handle()
     {
         $name = $this->argument('name') ?: $this->ask('Enter the class name');
-        $namespace = $this->ask('Enter the namespace for the class', cache('laravel-console-helper::namespace') ?: 'App');
+        $namespace = $this->option('namespace') ?: $this->ask('Enter the namespace for the class', cache('laravel-console-helper::namespace') ?: 'App');
         $extends = $this->option('extends') ? $this->ask('Enter the class to extend') : '';
         $implements = $this->option('implements') ? $this->ask('Enter the interfaces to implement') : '';
         $classOrTrait = $this->option('trait') ? 'trait' : 'class';
