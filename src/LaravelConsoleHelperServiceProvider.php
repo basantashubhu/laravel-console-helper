@@ -13,6 +13,7 @@ class LaravelConsoleHelperServiceProvider extends ServiceProvider
             Commands\MakeComposerRepository::class,
             Commands\RouteFind::class,
             Commands\MakeNewRepoCommand::class,
+            Commands\PackageHelper::class,
         ]);
     }
 }
