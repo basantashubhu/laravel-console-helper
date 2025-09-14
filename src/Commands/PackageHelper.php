@@ -4,10 +4,12 @@ namespace Basanta\LaravelConsoleHelper\Commands;
 
 use Basanta\LaravelConsoleHelper\Traits\ArrayVariable;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 class PackageHelper extends \Illuminate\Console\Command
 {
     use ArrayVariable;
+    use \Basanta\LaravelConsoleHelper\Traits\PackageHelper;
 
     protected $signature = 'package:make {create?} {--force}';
 
@@ -16,6 +18,12 @@ class PackageHelper extends \Illuminate\Console\Command
     public function handle()
     {
         $package = $this->ask('Enter the package name [username/repo]');
+
+        if(!str_contains($package, '/')) {
+            $package = $this->choice('Choose package', array_map(function ($dir) use ($package) {
+                return Str::after($dir, "vendor/");
+            }, glob(base_path("vendor/$package/*"), GLOB_ONLYDIR)));
+        }
 
         $create = $this->argument('create') ?: $this->choice('What do you want to create?', [
             'controller' => 'Controller',
@@ -34,6 +42,7 @@ class PackageHelper extends \Illuminate\Console\Command
             'name' => $name,
         ]);
 
+        $this->fillStub();
         $this->moveFile();
 
         return 0;
@@ -47,19 +56,18 @@ class PackageHelper extends \Illuminate\Console\Command
             return;
         }
 
-        if (!is_dir($destination)) {
-            mkdir($destination, 0755, true);
+        if (!is_dir(dirname($destination))) {
+            mkdir(dirname($destination), 0755, true);
         }
 
-        $destinationFile = $destination . '/' . basename($source);
-        if (file_exists($destinationFile) && !$this->option('force')) {
-            $this->error("Destination file already exists: $destinationFile");
+        if (file_exists($destination) && !$this->option('force')) {
+            $this->error("Destination file already exists: $destination");
             return;
         }
 
-        rename($source, $destinationFile);
+        rename($source, $destination);
 
-        $this->info("Created: ". strstr($destinationFile, '/src/'));
+        $this->info("Created: ". strstr($destination, '/src/'));
     }
 
     private function sourceDestination()
@@ -68,25 +76,22 @@ class PackageHelper extends \Illuminate\Console\Command
         $name = $this->variable('name');
         $package = $this->variable('package');
 
-        $source;
-        $destination;
-
         switch ($create) {
             case 'controller':
                 $source = app_path("Http/Controllers/$name.php");
-                $destination = base_path("vendor/$package/src/Http/Controllers");
+                $destination = base_path("vendor/$package/src/Http/Controllers/$name.php");
                 break;
             case 'model':
                 $source = app_path("Models/$name.php");
-                $destination = base_path("vendor/$package/src/Models");
+                $destination = base_path("vendor/$package/src/Models/$name.php");
                 break;
             case 'migration':
                 $source = database_path("migrations/$name.php");
-                $destination = base_path("vendor/$package/database/migrations");
+                $destination = base_path("vendor/$package/database/migrations/$name.php");
                 break;
             case 'request':
                 $source = app_path("Http/Requests/$name.php");
-                $destination = base_path("vendor/$package/src/Http/Requests");
+                $destination = base_path("vendor/$package/src/Http/Requests/$name.php");
                 break;
             default:
                 $this->error("Unknown create type: $create");
@@ -94,5 +99,17 @@ class PackageHelper extends \Illuminate\Console\Command
         }
 
         return [$source, $destination];
+    }
+
+    private function fillStub()
+    {
+        [$source] = $this->sourceDestination();
+
+        $this->loadComposerJson($package = $this->variable('package'));
+        $namespace = $this->composerJson[$package]['namespace'];
+
+        file_put_contents($source, strtr(file_get_contents($source), [
+            'App\\' => $namespace
+        ]));
     }
 }

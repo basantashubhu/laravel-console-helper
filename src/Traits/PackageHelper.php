@@ -60,10 +60,9 @@ trait PackageHelper
     {
         $this->loadComposerJson($package);
 
-        $path = strtr($namespace, $tr = [
-            ...Arr::get($this->composerJson[$package], 'autoload.psr-4', []),
-            '\\' => '/',
-        ]);
+        $replace = Arr::get($this->composerJson[$package], 'autoload.psr-4', []);
+        $replace['\\'] = '/';
+        $path = strtr($namespace, $replace);
 
         $path = $package != 'main' ? 'vendor/' . $package . '/' . $path : $path;
 
