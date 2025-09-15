@@ -30,6 +30,7 @@ class PackageHelper extends \Illuminate\Console\Command
             'model' => 'Model',
             'migration' => 'Migration',
             'request' => 'Request',
+            'command' => 'Command'
         ], 0);
 
         $name = str_replace('\\', '/', $this->ask("Enter the $create name"));
@@ -92,6 +93,10 @@ class PackageHelper extends \Illuminate\Console\Command
             case 'request':
                 $source = app_path("Http/Requests/$name.php");
                 $destination = base_path("vendor/$package/src/Http/Requests/$name.php");
+                break;
+            case 'command':
+                $source = app_path("Console/Commands/$name.php");
+                $destination = base_path("vendor/$package/src/Console/Commands/$name.php");
                 break;
             default:
                 $this->error("Unknown create type: $create");
